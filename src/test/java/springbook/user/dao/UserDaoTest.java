@@ -11,6 +11,8 @@ import springbook.user.domain.User;
 
 class UserDaoTest {
 
+    DaoFactory daoFactory = new DaoFactory();
+
     @BeforeEach
     void setUp() {
         // TODO : Clear DB Data
@@ -22,17 +24,17 @@ class UserDaoTest {
     }
 
     @Test
-    void userInfoShouldBeSameAfterGet() throws SQLException, ClassNotFoundException {
+    void allDBReadResultShouldBeSameAfterWrite() throws SQLException, ClassNotFoundException {
         // Prepare
         User withbeth = new User();
-        withbeth.setId("7");
+        withbeth.setId("8");
         withbeth.setName("withbeth");
         withbeth.setPassword("0000");
 
-        UserDao devUserDao = new UserDao(new DevDBConnectionMaker());
+        UserDao devUserDao = daoFactory.devDBUserDao();
         devUserDao.add(withbeth);
 
-        UserDao prodUserDao = new UserDao(new ProdDBConnectionMaker());
+        UserDao prodUserDao = daoFactory.prodDBUserDao();
         prodUserDao.add(withbeth);
 
         // Execute
