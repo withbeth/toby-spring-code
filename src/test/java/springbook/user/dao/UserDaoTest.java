@@ -25,20 +25,29 @@ class UserDaoTest {
     void userInfoShouldBeSameAfterGet() throws SQLException, ClassNotFoundException {
         // Prepare
         User withbeth = new User();
-        withbeth.setId("4");
+        withbeth.setId("7");
         withbeth.setName("withbeth");
         withbeth.setPassword("0000");
 
-        UserDao userDao = new UserDao();
-        userDao.add(withbeth);
+        UserDao devUserDao = new UserDao(new DevDBConnectionMaker());
+        devUserDao.add(withbeth);
+
+        UserDao prodUserDao = new UserDao(new ProdDBConnectionMaker());
+        prodUserDao.add(withbeth);
 
         // Execute
-        User withBethFromDB = userDao.get(withbeth.getId());
+        User userFromDevDB = devUserDao.get(withbeth.getId());
+        User userFromProdDB = prodUserDao.get(withbeth.getId());
 
         // Verify
-        assertEquals(withbeth.getId(), withBethFromDB.getId());
-        assertEquals(withbeth.getName(), withBethFromDB.getName());
-        assertEquals(withbeth.getPassword(), withBethFromDB.getPassword());
+        assertEquals(withbeth.getId(), userFromDevDB.getId());
+        assertEquals(withbeth.getName(), userFromDevDB.getName());
+        assertEquals(withbeth.getPassword(), userFromDevDB.getPassword());
+
+        // Verify
+        assertEquals(withbeth.getId(), userFromProdDB.getId());
+        assertEquals(withbeth.getName(), userFromProdDB.getName());
+        assertEquals(withbeth.getPassword(), userFromProdDB.getPassword());
     }
 
 }

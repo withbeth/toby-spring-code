@@ -1,7 +1,6 @@
 package springbook.user.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +12,12 @@ import springbook.user.domain.User;
  * resources(connection, Statement, ResultSet) Handle exceptions which JDBC API throws
  */
 public class UserDao {
+
+    private final ConnectionMaker connectionMaker;
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
 
     // Test without OBJC dynamic loading
     // Try close with resource from Java8
@@ -26,7 +31,7 @@ public class UserDao {
     public void add(User user) throws ClassNotFoundException, SQLException {
 
         try (
-            Connection connection = getConnection();
+            Connection connection = connectionMaker.getConnection();
             PreparedStatement statement = connection.prepareStatement(
                 "insert into USERS (id, name, password) values (?, ?, ?)");
         ) {
@@ -41,7 +46,7 @@ public class UserDao {
     public User get(String id) throws ClassNotFoundException, SQLException {
 
         try (
-            Connection connection = getConnection();
+            Connection connection = connectionMaker.getConnection();
             PreparedStatement statement = connection.prepareStatement(
                 "select * from users where id = ?");
         ) {
@@ -60,12 +65,6 @@ public class UserDao {
 
             }
         }
-    }
-
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-        return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1522:XE", "system",
-            "Nightowl1");
     }
 
 }
