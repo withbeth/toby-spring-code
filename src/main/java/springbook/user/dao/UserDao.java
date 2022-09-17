@@ -22,14 +22,11 @@ public class UserDao {
     // How to convert user to dao?
     //  -> Nope. create sql statement object and map user data
     // Statement vs PreparedStatement
-    //  -> Prepared version : more efficient when execute same sql many times because of pre-complie
+    //  -> Prepared version : more efficient when execute same sql many times because of pre-compile
     public void add(User user) throws ClassNotFoundException, SQLException {
 
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-
         try (
-            Connection connection = DriverManager.getConnection(
-                "jdbc:oracle:thin:@localhost:1522:XE", "system", "Nightowl1");
+            Connection connection = getConnection();
             PreparedStatement statement = connection.prepareStatement(
                 "insert into USERS (id, name, password) values (?, ?, ?)");
         ) {
@@ -43,12 +40,8 @@ public class UserDao {
 
     public User get(String id) throws ClassNotFoundException, SQLException {
 
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-
         try (
-            Connection connection = DriverManager.getConnection(
-                "jdbc:oracle:thin:@localhost:1522:XE", "system", "Nightowl1");
-
+            Connection connection = getConnection();
             PreparedStatement statement = connection.prepareStatement(
                 "select * from users where id = ?");
         ) {
@@ -69,20 +62,10 @@ public class UserDao {
         }
     }
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        User withbeth = new User();
-        withbeth.setId("2");
-        withbeth.setName("withbeth");
-        withbeth.setPassword("0000");
-
-        UserDao userDao = new UserDao();
-        userDao.add(withbeth);
-
-        User withBethFromDB = userDao.get(withbeth.getId());
-
-        assert withbeth.getId().equals(withBethFromDB.getId());
-        assert withbeth.getName().equals(withBethFromDB.getName());
-        assert withbeth.getPassword().equals(withBethFromDB.getPassword());
+    public Connection getConnection() throws ClassNotFoundException, SQLException {
+        Class.forName("oracle.jdbc.driver.OracleDriver");
+        return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1522:XE", "system",
+            "Nightowl1");
     }
 
 }
