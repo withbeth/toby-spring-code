@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import springbook.user.domain.User;
 
 /**
@@ -55,13 +56,15 @@ public class UserDao {
 
             try (ResultSet resultSet = statement.executeQuery()) {
 
-                resultSet.next();
+                if (resultSet.next()) {
+                    User user = new User();
+                    user.setId(resultSet.getString("id"));
+                    user.setName(resultSet.getString("name"));
+                    user.setPassword(resultSet.getString("password"));
+                    return user;
+                }
 
-                User user = new User();
-                user.setId(resultSet.getString("id"));
-                user.setName(resultSet.getString("name"));
-                user.setPassword(resultSet.getString("password"));
-                return user;
+                throw new EmptyResultDataAccessException("User does not exist", 1);
 
             }
         }
