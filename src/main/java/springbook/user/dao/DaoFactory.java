@@ -1,25 +1,33 @@
 package springbook.user.dao;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
 public class DaoFactory {
 
     public UserDao userDao(ConnectionMaker connectionMaker) {
         return new UserDao(connectionMaker);
     }
 
-    public UserDao devDBUserDao() {
-        return userDao(devDBConnectionMaker());
+    @Bean
+    public UserDao eastRegionUserDao() {
+        return userDao(eastRegionDBConnectionMaker());
     }
 
-    public UserDao prodDBUserDao() {
-        return userDao(prodDBConnectionMaker());
+    @Bean
+    public UserDao westRegionUserDao() {
+        return userDao(westRegionDBConnectionMaker());
     }
 
-    public DevDBConnectionMaker devDBConnectionMaker() {
-        return new DevDBConnectionMaker();
+    @Bean
+    public EastRegionDBConnectionMaker eastRegionDBConnectionMaker() {
+        return new EastRegionDBConnectionMaker();
     }
 
-    public ProdDBConnectionMaker prodDBConnectionMaker() {
-        return new ProdDBConnectionMaker();
+    @Bean
+    public WestRegionDBConnectionMaker westRegionDBConnectionMaker() {
+        return new WestRegionDBConnectionMaker();
     }
 
 }

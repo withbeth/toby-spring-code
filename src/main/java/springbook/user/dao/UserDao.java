@@ -53,7 +53,7 @@ public class UserDao {
 
             statement.setString(1, id);
 
-            try (ResultSet resultSet = statement.executeQuery();) {
+            try (ResultSet resultSet = statement.executeQuery()) {
 
                 resultSet.next();
 
@@ -67,4 +67,29 @@ public class UserDao {
         }
     }
 
+    public int getCount() throws ClassNotFoundException, SQLException {
+        try (
+            Connection connection = connectionMaker.getConnection();
+            PreparedStatement statement = connection.prepareStatement(
+                "select count(*) from users");
+        ) {
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                resultSet.next();
+                return resultSet.getInt(1);
+
+            }
+        }
+    }
+
+    public void deleteAll() throws ClassNotFoundException, SQLException {
+        try (
+            Connection connection = connectionMaker.getConnection();
+            PreparedStatement statement = connection.prepareStatement("delete from users");
+        ) {
+
+            statement.executeUpdate();
+        }
+    }
 }

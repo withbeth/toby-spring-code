@@ -1,17 +1,17 @@
 package springbook.user.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import springbook.user.domain.User;
 
 
 class UserDaoTest {
-
-    DaoFactory daoFactory = new DaoFactory();
 
     @BeforeEach
     void setUp() {
@@ -20,36 +20,45 @@ class UserDaoTest {
 
     @AfterEach
     void tearDown() {
-        // TODO : Clear DB Data
     }
 
     @Test
-    void allDBReadResultShouldBeSameAfterWrite() throws SQLException, ClassNotFoundException {
-        // Prepare
-        User withbeth = new User();
-        withbeth.setId("8");
-        withbeth.setName("withbeth");
-        withbeth.setPassword("0000");
+    void addAndGet() throws SQLException, ClassNotFoundException {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            DaoFactory.class);
+        UserDao eastRegionUserDao = ctx.getBean("eastRegionUserDao", UserDao.class);
+        UserDao westRegionUserDao = ctx.getBean("westRegionUserDao", UserDao.class);
 
-        UserDao devUserDao = daoFactory.devDBUserDao();
-        devUserDao.add(withbeth);
+        User user = new User();
+        user.setId("10");
+        user.setName("withbeth");
+        user.setPassword("0000");
 
-        UserDao prodUserDao = daoFactory.prodDBUserDao();
-        prodUserDao.add(withbeth);
+        assertTrue(eastRegionUserDao.getCount() > 0);
+        assertTrue(westRegionUserDao.getCount() > 0);
 
-        // Execute
-        User userFromDevDB = devUserDao.get(withbeth.getId());
-        User userFromProdDB = prodUserDao.get(withbeth.getId());
+        eastRegionUserDao.deleteAll();
+        westRegionUserDao.deleteAll();
 
-        // Verify
-        assertEquals(withbeth.getId(), userFromDevDB.getId());
-        assertEquals(withbeth.getName(), userFromDevDB.getName());
-        assertEquals(withbeth.getPassword(), userFromDevDB.getPassword());
+        assertEquals(0, eastRegionUserDao.getCount());
+        assertEquals(0, westRegionUserDao.getCount());
 
-        // Verify
-        assertEquals(withbeth.getId(), userFromProdDB.getId());
-        assertEquals(withbeth.getName(), userFromProdDB.getName());
-        assertEquals(withbeth.getPassword(), userFromProdDB.getPassword());
+        eastRegionUserDao.add(user);
+        westRegionUserDao.add(user);
+
+        assertEquals(1, eastRegionUserDao.getCount());
+        assertEquals(1, westRegionUserDao.getCount());
+
+        User userFromEast = eastRegionUserDao.get(user.getId());
+        User userFromWest = westRegionUserDao.get(user.getId());
+
+        assertEquals(user.getId(), userFromEast.getId());
+        assertEquals(user.getName(), userFromEast.getName());
+        assertEquals(user.getPassword(), userFromEast.getPassword());
+
+        assertEquals(user.getId(), userFromWest.getId());
+        assertEquals(user.getName(), userFromWest.getName());
+        assertEquals(user.getPassword(), userFromWest.getPassword());
     }
 
 }
